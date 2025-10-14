@@ -1,0 +1,52 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:id="@+id/tvParty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Party"/>
+
+        <TextView
+            android:id="@+id/tvPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Position"/>
+
+        <TextView
+            android:id="@+id/tvYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Year"/>
+
+        <TextView
+            android:id="@+id/tvDepartment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Department"/>
+
+        <TextView
+            android:id="@+id/tvAgenda"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Agenda"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

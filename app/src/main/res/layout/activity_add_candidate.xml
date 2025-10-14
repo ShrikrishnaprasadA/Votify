@@ -1,0 +1,76 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Candidate"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"/>
+
+        <EditText
+            android:id="@+id/etCandidateName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full Name"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etCandidateEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etCandidateParty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Party"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etCandidatePosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Position (e.g. President)"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etCandidateYear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Year (e.g. 3rd Year)"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etCandidateDepartment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Department"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etCandidateAgenda"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Agenda"
+            android:layout_marginBottom="20dp"/>
+
+        <Button
+            android:id="@+id/btnSaveCandidate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Candidate"/>
+    </LinearLayout>
+</ScrollView>
