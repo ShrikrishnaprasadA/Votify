@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class StudentRegisterStep1Activity extends AppCompatActivity {
@@ -17,7 +18,7 @@ public class StudentRegisterStep1Activity extends AppCompatActivity {
 
         EditText etStudentId = findViewById(R.id.etStudentId);
         Button btnVerifyId = findViewById(R.id.btnVerifyId);
-        Button btnBackToLogin = findViewById(R.id.btnBackToLogin);
+        TextView btnBackToLogin = findViewById(R.id.tvBackToLogin);
 
         // Verify ID Button Click
         btnVerifyId.setOnClickListener(v -> {

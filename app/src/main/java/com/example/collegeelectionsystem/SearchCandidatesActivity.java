@@ -19,10 +19,8 @@ import java.util.List;
 public class SearchCandidatesActivity extends AppCompatActivity {
 
     private EditText etQuery, etParty, etPost;
-    private Button btnSearch;
-    private RecyclerView recycler;
     private CandidateAdapter adapter;
-    private List<Candidate> list = new ArrayList<>();
+    private final List<Candidate> list = new ArrayList<>();
     private FirebaseFirestore db;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +30,8 @@ public class SearchCandidatesActivity extends AppCompatActivity {
         etQuery = findViewById(R.id.etQuery);
         etParty = findViewById(R.id.etParty);
         etPost  = findViewById(R.id.etPost);
-        btnSearch = findViewById(R.id.btnSearch);
-        recycler = findViewById(R.id.recycler);
+        Button btnSearch = findViewById(R.id.btnSearch);
+        RecyclerView recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         adapter = new CandidateAdapter(this, list);
         recycler.setAdapter(adapter);
