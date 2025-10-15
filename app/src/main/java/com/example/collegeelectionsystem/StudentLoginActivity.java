@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,12 +31,21 @@ public class StudentLoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         Button btnLogin = findViewById(R.id.btnLogin);
-        Button btnBack = findViewById(R.id.btnBack);
+        TextView btnBack = findViewById(R.id.btnBack);
+        TextView anonymous,student,admin;
+        anonymous=findViewById(R.id.btnAnonymousLogin);
+        admin=findViewById(R.id.btnAdminLogin);
 
+        anonymous.setOnClickListener(v->{
+            startActivity(new Intent(StudentLoginActivity.this, AnonymousLoginActivity.class));
+        });
+        admin.setOnClickListener(v->{
+            startActivity(new Intent(StudentLoginActivity.this, AdminLoginActivity.class));
+        });
         btnLogin.setOnClickListener(v -> loginUser());
 
         btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(StudentLoginActivity.this, MainActivity.class));
+            startActivity(new Intent(StudentLoginActivity.this, StudentRegisterStep1Activity.class));
             finish();
         });
     }
