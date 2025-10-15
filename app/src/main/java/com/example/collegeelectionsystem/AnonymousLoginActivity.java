@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,9 +25,16 @@ public class AnonymousLoginActivity extends AppCompatActivity {
 
         etToken = findViewById(R.id.etToken);
         Button btnLogin = findViewById(R.id.btnAnonymousLogin);
-
+        TextView admin,student;
+        student=findViewById(R.id.btnloginActivity);
+        admin=findViewById(R.id.btnAdminLogin);
         db = FirebaseFirestore.getInstance();
-
+        student.setOnClickListener(v->{
+            startActivity(new Intent(AnonymousLoginActivity.this,StudentLoginActivity.class));
+        });
+        admin.setOnClickListener(v->{
+            startActivity(new Intent(AnonymousLoginActivity.this,AdminLoginActivity.class));
+        });
         btnLogin.setOnClickListener(v -> validateToken());
     }
 
