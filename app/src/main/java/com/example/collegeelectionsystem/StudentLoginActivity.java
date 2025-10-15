@@ -32,7 +32,7 @@ public class StudentLoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         Button btnLogin = findViewById(R.id.btnLogin);
         TextView btnBack = findViewById(R.id.btnBack);
-        TextView anonymous,student,admin;
+        TextView anonymous,admin;
         anonymous=findViewById(R.id.btnAnonymousLogin);
         admin=findViewById(R.id.btnAdminLogin);
 

@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add Party"
+            android:text="@string/add_party"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="20dp"/>
@@ -24,12 +24,23 @@
             android:hint="Party Name"
             android:layout_marginBottom="12dp"/>
 
-        <EditText
-            android:id="@+id/etPartyColor"
+        <!-- Replace color EditText with this button -->
+        <Button
+            android:id="@+id/btnPickColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Color (e.g. #2196F3)"
+            android:text="Pick Party Color"
             android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tvSelectedColor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Selected Color: None"
+            android:textSize="16sp"
+            android:padding="6dp"
+            android:layout_marginBottom="12dp"
+            android:background="#DDDDDD"/>
 
         <EditText
             android:id="@+id/etPartyDescription"

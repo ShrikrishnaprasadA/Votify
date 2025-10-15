@@ -62,7 +62,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui:2.7.6")
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-messaging")
-
+    implementation("com.github.yukuku:ambilwarna:2.0.1")
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
