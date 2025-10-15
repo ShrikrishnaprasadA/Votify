@@ -37,10 +37,16 @@ public class StudentLoginActivity extends AppCompatActivity {
         admin=findViewById(R.id.btnAdminLogin);
 
         anonymous.setOnClickListener(v->{
-            startActivity(new Intent(StudentLoginActivity.this, AnonymousLoginActivity.class));
+            Intent intent = new Intent(StudentLoginActivity.this, AnonymousLoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
         admin.setOnClickListener(v->{
-            startActivity(new Intent(StudentLoginActivity.this, AdminLoginActivity.class));
+            Intent intent =new Intent(StudentLoginActivity.this, AdminLoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
         btnLogin.setOnClickListener(v -> loginUser());
 

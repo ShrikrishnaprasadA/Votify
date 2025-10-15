@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -15,7 +16,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class AdminLoginActivity extends AppCompatActivity {
 
     private EditText etAdminEmail, etAdminPassword;
-    private Button btnAdminLogin;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -24,13 +24,28 @@ public class AdminLoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_login);
 
-        etAdminEmail = findViewById(R.id.etAdminEmail);
-        etAdminPassword = findViewById(R.id.etAdminPassword);
-        btnAdminLogin = findViewById(R.id.btnAdminLogin);
+        etAdminEmail = findViewById(R.id.etEmail);
+        etAdminPassword = findViewById(R.id.etPassword);
+        Button btnAdminLogin = findViewById(R.id.btnLogin);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-
+        TextView anonymous,admin,student;
+        anonymous=findViewById(R.id.AnonymousLogin);
+        admin=findViewById(R.id.btnAdminLogin);
+        student=findViewById(R.id.btnloginActivity);
+        student.setOnClickListener(v->{
+            Intent intent =new Intent(AdminLoginActivity.this,StudentLoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+        anonymous.setOnClickListener(v->{
+            Intent intent =new Intent(AdminLoginActivity.this, AnonymousLoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
         btnAdminLogin.setOnClickListener(v -> loginAdmin());
     }
 

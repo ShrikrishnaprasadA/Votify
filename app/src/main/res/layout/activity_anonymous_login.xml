@@ -66,9 +66,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:textColor="@android:color/darker_gray"
                     android:text="Student"
                     android:textStyle="bold"
-                    android:textColor="#2196F3"
                     android:paddingBottom="8dp"/>
                 <TextView
                     android:id="@+id/AnonymousLogin"
@@ -77,7 +77,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="Anonymous"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="#2196F3"
                     android:paddingBottom="8dp"/>
                 <TextView
                     android:id="@+id/btnAdminLogin"

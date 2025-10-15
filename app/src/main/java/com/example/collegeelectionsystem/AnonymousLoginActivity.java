@@ -30,10 +30,16 @@ public class AnonymousLoginActivity extends AppCompatActivity {
         admin=findViewById(R.id.btnAdminLogin);
         db = FirebaseFirestore.getInstance();
         student.setOnClickListener(v->{
-            startActivity(new Intent(AnonymousLoginActivity.this,StudentLoginActivity.class));
+            Intent intent =new Intent(AnonymousLoginActivity.this,StudentLoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
         admin.setOnClickListener(v->{
-            startActivity(new Intent(AnonymousLoginActivity.this,AdminLoginActivity.class));
+            Intent intent =new Intent(AnonymousLoginActivity.this, AdminLoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
         btnLogin.setOnClickListener(v -> validateToken());
     }
