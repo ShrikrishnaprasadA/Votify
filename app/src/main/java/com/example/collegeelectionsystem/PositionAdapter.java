@@ -4,8 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Adapter shows positions. Each item contains a RadioGroup of candidates for that position.
+ * Adapter shows positions. Each item contains a list of candidate cards (with placeholder image, name, radio).
  * Exposes getSelectedMap() returning Map<position, Candidate>.
  */
 public class PositionAdapter extends RecyclerView.Adapter<PositionAdapter.PositionViewHolder> {
@@ -44,42 +45,50 @@ public class PositionAdapter extends RecyclerView.Adapter<PositionAdapter.Positi
         String positionName = positions.get(positionIndex);
         holder.tvPositionTitle.setText(positionName);
 
-        // Clear existing buttons (for view reuse)
-        holder.rgCandidates.removeAllViews();
+        // clear previous children
+        holder.candidateContainer.removeAllViews();
 
         List<Candidate> list = groupedCandidates.get(positionName);
-        if (list == null) return;
+        if (list == null || list.isEmpty()) return;
 
-        // Create RadioButtons programmatically
-        for (int i = 0; i < list.size(); i++) {
-            Candidate c = list.get(i);
-            RadioButton rb = new RadioButton(context);
-            rb.setId(View.generateViewId());
-            rb.setText(c.getName() + " (" + (c.getParty() == null ? "Independent" : c.getParty()) + ")");
-            rb.setTag(c); // store candidate object for retrieval on click
-            // style small padding
-            rb.setPadding(8, 12, 8, 12);
-            holder.rgCandidates.addView(rb);
+        LayoutInflater inflater = LayoutInflater.from(context);
 
-            // If previously selected (e.g., after rotation), restore selection
+        for (Candidate c : list) {
+            View candidateView = inflater.inflate(R.layout.item_candidate_vote, holder.candidateContainer, false);
+
+            ImageView imgCandidate = candidateView.findViewById(R.id.imgCandidate);
+            TextView tvName = candidateView.findViewById(R.id.tvCandidateName);
+            TextView tvParty = candidateView.findViewById(R.id.tvCandidateParty);
+            RadioButton radio = candidateView.findViewById(R.id.radioSelect);
+
+            tvName.setText(c.getName() != null ? c.getName() : "Unknown");
+            tvParty.setText(c.getParty() != null ? c.getParty() : "Independent");
+
+            // Always use placeholder resource (no remote images)
+            imgCandidate.setImageResource(R.drawable.ic_person_placeholder);
+
+            // radio default off
+            radio.setChecked(false);
+
+            radio.setOnClickListener(v -> {
+                // Uncheck other radios in this position
+                for (int i = 0; i < holder.candidateContainer.getChildCount(); i++) {
+                    View child = holder.candidateContainer.getChildAt(i);
+                    RadioButton r = child.findViewById(R.id.radioSelect);
+                    if (r != radio) r.setChecked(false);
+                }
+                // save selection
+                selectedMap.put(positionName, c);
+            });
+
+            // restore previous selection if exists
             Candidate sel = selectedMap.get(positionName);
             if (sel != null && sel.getId() != null && sel.getId().equals(c.getId())) {
-                rb.setChecked(true);
+                radio.setChecked(true);
             }
-        }
 
-        // listen for selection changes
-        holder.rgCandidates.setOnCheckedChangeListener((group, checkedId) -> {
-            RadioButton chosen = group.findViewById(checkedId);
-            if (chosen != null) {
-                Object tag = chosen.getTag();
-                if (tag instanceof Candidate) {
-                    selectedMap.put(positionName, (Candidate) tag);
-                }
-            } else {
-                selectedMap.remove(positionName);
-            }
-        });
+            holder.candidateContainer.addView(candidateView);
+        }
     }
 
     @Override
@@ -93,12 +102,12 @@ public class PositionAdapter extends RecyclerView.Adapter<PositionAdapter.Positi
 
     static class PositionViewHolder extends RecyclerView.ViewHolder {
         TextView tvPositionTitle;
-        RadioGroup rgCandidates;
+        LinearLayout candidateContainer;
 
         public PositionViewHolder(@NonNull View itemView) {
             super(itemView);
             tvPositionTitle = itemView.findViewById(R.id.tvPositionTitle);
-            rgCandidates = itemView.findViewById(R.id.rgCandidates);
+            candidateContainer = itemView.findViewById(R.id.candidateContainer);
         }
     }
 }

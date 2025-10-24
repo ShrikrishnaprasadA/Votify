@@ -1,20 +1,17 @@
 package com.example.collegeelectionsystem;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -26,15 +23,11 @@ import java.util.Map;
 
 /**
  * VotingActivity: shows multiple positions (each with candidates).
- * On submit:
- *  - ensure voterId (uid or anonymous token id)
- *  - fetch existing votes for voter
- *  - if conflicts (already voted for any position) -> show message and abort
- *  - otherwise write all votes in a WriteBatch with timestamp
+ * Submits all selected votes in a single WriteBatch after checking for conflicts.
  */
 public class VotingActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerPositions;
+    private RecyclerView recyclerPositions;    // matches activity_voting.xml -> recyclerVoting
     private Button btnSubmit;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -49,7 +42,8 @@ public class VotingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voting);
 
-        recyclerPositions = findViewById(R.id.recyclerPositions);
+        // IMPORTANT: this id must match the RecyclerView id in your activity_voting.xml
+        recyclerPositions = findViewById(R.id.recyclerVoting);
         btnSubmit = findViewById(R.id.btnSubmitVote);
 
         db = FirebaseFirestore.getInstance();
@@ -68,6 +62,7 @@ public class VotingActivity extends AppCompatActivity {
                 List<Candidate> all = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : task.getResult()) {
                     Candidate c = doc.toObject(Candidate.class);
+                    // ensure candidate has its document id
                     c.setId(doc.getId());
                     all.add(c);
                 }
@@ -81,7 +76,6 @@ public class VotingActivity extends AppCompatActivity {
                 }
 
                 List<String> positions = new ArrayList<>(grouped.keySet());
-                // You may want to sort positions; for now keep insertion order
                 adapter = new PositionAdapter(this, positions, grouped);
                 recyclerPositions.setAdapter(adapter);
             } else {
@@ -95,25 +89,30 @@ public class VotingActivity extends AppCompatActivity {
             return mAuth.getCurrentUser().getUid();
         } else {
             SharedPreferences prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-            String anonId = prefs.getString(KEY_ANON_TOKEN_DOC_ID, null);
-            return anonId; // may be null if anonymous login did not save token id
+            return prefs.getString(KEY_ANON_TOKEN_DOC_ID, null); // may be null if anonymous login did not save token id
         }
     }
 
     private void submitVotes() {
+        // Guard: adapter may not be initialized yet
+        if (adapter == null) {
+            Toast.makeText(this, "Please wait — candidates are still loading.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Map<String, Candidate> selected = adapter.getSelectedMap();
-        if (selected.isEmpty()) {
+        if (selected == null || selected.isEmpty()) {
             Toast.makeText(this, "Please select at least one candidate", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String voterId = getVoterIdOrNull();
-        if (voterId == null) {
+        if (voterId == null || voterId.isEmpty()) {
             Toast.makeText(this, "Unable to identify voter. For anonymous login ensure token is used.", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // disable button while processing
+        // disable button while processing to avoid duplicates
         btnSubmit.setEnabled(false);
 
         // Fetch all votes by this voter to detect already-voted positions
@@ -134,7 +133,12 @@ public class VotingActivity extends AppCompatActivity {
 
                     if (!conflicts.isEmpty()) {
                         // user already voted for these positions — abort and notify
-                        String msg = "You have already voted for: " + String.join(", ", conflicts);
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < conflicts.size(); i++) {
+                            if (i > 0) sb.append(", ");
+                            sb.append(conflicts.get(i));
+                        }
+                        String msg = "You have already voted for: " + sb.toString();
                         Toast.makeText(VotingActivity.this, msg, Toast.LENGTH_LONG).show();
                         btnSubmit.setEnabled(true);
                         return;
@@ -142,10 +146,15 @@ public class VotingActivity extends AppCompatActivity {
 
                     // No conflicts — write all votes in a batch
                     WriteBatch batch = db.batch();
+                    boolean addedAny = false;
                     for (Map.Entry<String, Candidate> e : selected.entrySet()) {
                         String pos = e.getKey();
                         Candidate c = e.getValue();
                         if (c == null) continue;
+                        if (c.getId() == null || c.getId().isEmpty()) {
+                            // safety: skip candidates missing an id (shouldn't happen if candidate.setId(doc.getId()) was done)
+                            continue;
+                        }
 
                         Map<String, Object> vote = new HashMap<>();
                         vote.put("candidateId", c.getId());
@@ -156,17 +165,24 @@ public class VotingActivity extends AppCompatActivity {
                         // create new doc ref
                         com.google.firebase.firestore.DocumentReference docRef = db.collection("votes").document();
                         batch.set(docRef, vote);
+                        addedAny = true;
                     }
 
-                    // Commit batch
+                    if (!addedAny) {
+                        Toast.makeText(VotingActivity.this, "No valid votes to submit.", Toast.LENGTH_SHORT).show();
+                        btnSubmit.setEnabled(true);
+                        return;
+                    }
+
+                    // Commit batch atomically
                     batch.commit()
                             .addOnSuccessListener(aVoid -> {
                                 Toast.makeText(VotingActivity.this, "Votes submitted successfully!", Toast.LENGTH_SHORT).show();
-
-                                // Optionally: disable further voting in UI for these positions
+                                // Disable submit or finish activity
                                 btnSubmit.setEnabled(false);
-                                // Optionally navigate away or show summary
-                                // finish();
+
+                                // OPTIONAL: disable selection in adapter so UI reflects vote (you would need to add a method in adapter)
+                                // adapter.disableSelectedPositions(selected.keySet());
                             })
                             .addOnFailureListener(e -> {
                                 Toast.makeText(VotingActivity.this, "Error submitting votes: " + e.getMessage(), Toast.LENGTH_LONG).show();

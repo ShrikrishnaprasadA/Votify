@@ -65,6 +65,8 @@ dependencies {
     implementation("com.github.yukuku:ambilwarna:2.0.1")
     // Testing
     implementation("androidx.cardview:cardview:1.0.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+//    kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
