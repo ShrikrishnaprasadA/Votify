@@ -4,9 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,13 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Adapter shows positions. Each item contains a list of candidate cards (with placeholder image, name, radio).
- * Exposes getSelectedMap() returning Map<position, Candidate>.
+ * Adapter that shows one RecyclerView item per position.
+ * Each item contains a RadioGroup populated with that position's candidates.
+ * Selected candidate per position is stored in selectedMap.
  */
 public class PositionAdapter extends RecyclerView.Adapter<PositionAdapter.PositionViewHolder> {
 
     private final Context context;
-    private final List<String> positions; // list of position names
+    private final List<String> positions; // list of position names in order
     private final Map<String, List<Candidate>> groupedCandidates; // position -> list of candidates
     private final Map<String, Candidate> selectedMap = new HashMap<>(); // position -> selected candidate
 
@@ -45,50 +45,46 @@ public class PositionAdapter extends RecyclerView.Adapter<PositionAdapter.Positi
         String positionName = positions.get(positionIndex);
         holder.tvPositionTitle.setText(positionName);
 
-        // clear previous children
-        holder.candidateContainer.removeAllViews();
+        // Temporarily remove listener while we populate to avoid callbacks
+        holder.rgCandidates.setOnCheckedChangeListener(null);
+        holder.rgCandidates.removeAllViews();
 
         List<Candidate> list = groupedCandidates.get(positionName);
-        if (list == null || list.isEmpty()) return;
-
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        for (Candidate c : list) {
-            View candidateView = inflater.inflate(R.layout.item_candidate_vote, holder.candidateContainer, false);
-
-            ImageView imgCandidate = candidateView.findViewById(R.id.imgCandidate);
-            TextView tvName = candidateView.findViewById(R.id.tvCandidateName);
-            TextView tvParty = candidateView.findViewById(R.id.tvCandidateParty);
-            RadioButton radio = candidateView.findViewById(R.id.radioSelect);
-
-            tvName.setText(c.getName() != null ? c.getName() : "Unknown");
-            tvParty.setText(c.getParty() != null ? c.getParty() : "Independent");
-
-            // Always use placeholder resource (no remote images)
-            imgCandidate.setImageResource(R.drawable.ic_person_placeholder);
-
-            // radio default off
-            radio.setChecked(false);
-
-            radio.setOnClickListener(v -> {
-                // Uncheck other radios in this position
-                for (int i = 0; i < holder.candidateContainer.getChildCount(); i++) {
-                    View child = holder.candidateContainer.getChildAt(i);
-                    RadioButton r = child.findViewById(R.id.radioSelect);
-                    if (r != radio) r.setChecked(false);
-                }
-                // save selection
-                selectedMap.put(positionName, c);
-            });
-
-            // restore previous selection if exists
-            Candidate sel = selectedMap.get(positionName);
-            if (sel != null && sel.getId() != null && sel.getId().equals(c.getId())) {
-                radio.setChecked(true);
-            }
-
-            holder.candidateContainer.addView(candidateView);
+        if (list == null || list.isEmpty()) {
+            // nothing to show
+            return;
         }
+
+        // Create radio buttons for candidates
+        for (Candidate c : list) {
+            RadioButton rb = new RadioButton(context);
+            rb.setId(View.generateViewId());
+            String label = (c.getName() != null ? c.getName() : "Candidate")
+                    + " (" + (c.getParty() != null ? c.getParty() : "Independent") + ")";
+            rb.setText(label);
+            rb.setTag(c); // store candidate object for retrieval
+            rb.setPadding(8, 12, 8, 12);
+            holder.rgCandidates.addView(rb);
+
+            // If previously selected for this position, restore checked state
+            Candidate selected = selectedMap.get(positionName);
+            if (selected != null && selected.getId() != null && selected.getId().equals(c.getId())) {
+                rb.setChecked(true);
+            }
+        }
+
+        // Now set listener to update selectedMap when user chooses one
+        holder.rgCandidates.setOnCheckedChangeListener((group, checkedId) -> {
+            RadioButton chosen = group.findViewById(checkedId);
+            if (chosen != null) {
+                Object tag = chosen.getTag();
+                if (tag instanceof Candidate) {
+                    selectedMap.put(positionName, (Candidate) tag);
+                }
+            } else {
+                selectedMap.remove(positionName);
+            }
+        });
     }
 
     @Override
@@ -96,18 +92,22 @@ public class PositionAdapter extends RecyclerView.Adapter<PositionAdapter.Positi
         return positions.size();
     }
 
+    /**
+     * Returns a mutable map of currently selected candidates per position.
+     * Key = position name, Value = Candidate object selected for that position.
+     */
     public Map<String, Candidate> getSelectedMap() {
         return selectedMap;
     }
 
     static class PositionViewHolder extends RecyclerView.ViewHolder {
         TextView tvPositionTitle;
-        LinearLayout candidateContainer;
+        RadioGroup rgCandidates;
 
         public PositionViewHolder(@NonNull View itemView) {
             super(itemView);
             tvPositionTitle = itemView.findViewById(R.id.tvPositionTitle);
-            candidateContainer = itemView.findViewById(R.id.candidateContainer);
+            rgCandidates = itemView.findViewById(R.id.rgCandidates);
         }
     }
 }

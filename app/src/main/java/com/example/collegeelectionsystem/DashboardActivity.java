@@ -1,11 +1,10 @@
 package com.example.collegeelectionsystem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +25,9 @@ public class DashboardActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
+    private static final String PREFS = "votify_prefs";
+    private static final String KEY_FCM_SUBSCRIBED = "fcm_subscribed";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,21 +47,19 @@ public class DashboardActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         TextView tvWelcome = findViewById(R.id.tvWelcome);
 
+        // Set selected bottom nav item
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
         // Welcome text (email or generic)
-        if (mAuth.getCurrentUser() != null) {
+        if (mAuth != null && mAuth.getCurrentUser() != null) {
             String email = mAuth.getCurrentUser().getEmail();
             tvWelcome.setText(email != null ? "Logged in as " + email : "Welcome Back!");
+        } else {
+            tvWelcome.setText("Welcome Back!");
         }
 
-        // Subscribe to FCM topics (announcements, results)
-        FirebaseMessaging.getInstance().subscribeToTopic("announcements")
-                .addOnCompleteListener(task -> {
-                    // optional logging
-                });
-        FirebaseMessaging.getInstance().subscribeToTopic("results")
-                .addOnCompleteListener(task -> {
-                    // optional logging
-                });
+        // Subscribe to FCM topics once (remember in prefs)
+        subscribeToTopicsOnce();
 
         // Quick-action clicks (CardViews)
         btnCandidates.setOnClickListener(v -> openCandidates());
@@ -73,9 +73,10 @@ public class DashboardActivity extends AppCompatActivity {
         // Bottom navigation behaviour — match IDs from your bottom_nav_menu.xml
         bottomNavigationView.setOnItemSelectedListener(this::onBottomNavItemSelected);
 
-        // Load some stats (optional — comment out if you don't want Firestore calls)
+        // Load some stats (optional)
         loadStats();
     }
+
     private boolean onBottomNavItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
@@ -100,27 +101,36 @@ public class DashboardActivity extends AppCompatActivity {
         return false;
     }
 
-
-
     // --- navigation helpers ---
     private void openCandidates() {
-        startActivity(new Intent(this, CandidatesActivity.class));
+        Intent i = new Intent(this, CandidatesActivity.class);
+        // bring to front if exists rather than creating duplicate
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
     }
 
     private void openVoting() {
-        startActivity(new Intent(this, VotingActivity.class));
+        Intent i = new Intent(this, VotingActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
     }
 
     private void openAnnouncements() {
-        startActivity(new Intent(this, AnnouncementsActivity.class));
+        Intent i = new Intent(this, AnnouncementsActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
     }
 
     private void openResults() {
-        startActivity(new Intent(this, ResultsActivity.class));
+        Intent i = new Intent(this, ResultsActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
     }
 
     private void openParties() {
-        startActivity(new Intent(this, PartiesActivity.class));
+        Intent i = new Intent(this, PartiesActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
     }
 
     // If you implement profile later, update this
@@ -138,6 +148,9 @@ public class DashboardActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().unsubscribeFromTopic("announcements");
         FirebaseMessaging.getInstance().unsubscribeFromTopic("results");
 
+        // Clear the subscription flag so next login can resubscribe
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit().remove(KEY_FCM_SUBSCRIBED).apply();
+
         Intent intent = new Intent(DashboardActivity.this, StudentLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -146,11 +159,12 @@ public class DashboardActivity extends AppCompatActivity {
 
     // --- statistics loader (optional) ---
     private void loadStats() {
+        if (db == null) return;
+
         // Registered users count
         db.collection("users").get().addOnSuccessListener(snap -> {
             int usersCount = snap.size();
             // If you'd like to display it: create a TextView with id in XML and set text here.
-            // e.g. TextView tvTotalVoters = findViewById(R.id.tvTotalVoters); tvTotalVoters.setText(String.valueOf(usersCount));
         }).addOnFailureListener(e -> {
             // ignore or log
         });
@@ -182,5 +196,23 @@ public class DashboardActivity extends AppCompatActivity {
         }).addOnFailureListener(e -> {
             // ignore
         });
+    }
+
+    // Subscribe to FCM topics only once per device-install/login cycle
+    private void subscribeToTopicsOnce() {
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        boolean already = prefs.getBoolean(KEY_FCM_SUBSCRIBED, false);
+        if (already) return;
+
+        FirebaseMessaging.getInstance().subscribeToTopic("announcements")
+                .addOnCompleteListener(task -> {
+                    // optional logging
+                });
+
+        FirebaseMessaging.getInstance().subscribeToTopic("results")
+                .addOnCompleteListener(task -> {
+                    // when done, mark subscribed (even if one failed we mark; adjust logic if you need strict success)
+                    prefs.edit().putBoolean(KEY_FCM_SUBSCRIBED, true).apply();
+                });
     }
 }

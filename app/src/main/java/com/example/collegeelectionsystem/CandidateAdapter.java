@@ -1,67 +1,74 @@
 package com.example.collegeelectionsystem;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
 
-public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.CandidateViewHolder> {
+/**
+ * Adapter for candidate list.
+ */
+public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.VH> {
 
-    private final Context context;
-    private final List<Candidate> candidateList;
+    public interface OnItemClick {
+        void onClick(Candidate c);
+    }
 
-    public CandidateAdapter(Context context, List<Candidate> candidateList) {
-        this.context = context;
-        this.candidateList = candidateList;
+    private final Context ctx;
+    private final List<Candidate> items;
+    private final OnItemClick listener;
+
+    public CandidateAdapter(Context ctx, List<Candidate> items, OnItemClick listener) {
+        this.ctx = ctx;
+        this.items = items;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
-    public CandidateViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_candidate, parent, false);
-        return new CandidateViewHolder(view);
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(ctx).inflate(R.layout.item_candidate, parent, false);
+        return new VH(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CandidateViewHolder holder, int position) {
-        Candidate candidate = candidateList.get(position);
+    public void onBindViewHolder(@NonNull VH holder, int position) {
+        Candidate c = items.get(position);
+        holder.tvName.setText(c.getName() != null ? c.getName() : "—");
+        holder.tvParty.setText(c.getParty() != null ? c.getParty() : "Independent");
+        holder.tvPosition.setText(c.getPosition() != null ? c.getPosition() : "");
+        holder.tvYear.setText(c.getYear() != null ? c.getYear() : "");
 
-        holder.tvName.setText(candidate.getName());
-        holder.tvParty.setText("Party: " + candidate.getParty());
-        holder.tvPosition.setText("Position: " + candidate.getPosition());
+        // If you later store avatar URL, you can load using Glide/Picasso.
+        holder.ivAvatar.setImageResource(R.drawable.ic_person_placeholder);
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, CandidateDetailsActivity.class);
-            intent.putExtra("name", candidate.getName());
-            intent.putExtra("party", candidate.getParty());
-            intent.putExtra("position", candidate.getPosition());
-            intent.putExtra("year", candidate.getYear());
-            intent.putExtra("department", candidate.getDepartment());
-            intent.putExtra("agenda", candidate.getAgenda());
-            context.startActivity(intent);
+            if (listener != null) listener.onClick(c);
         });
     }
 
     @Override
     public int getItemCount() {
-        return candidateList.size();
+        return items.size();
     }
 
-    public static class CandidateViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvParty, tvPosition;
+    static class VH extends RecyclerView.ViewHolder {
+        ImageView ivAvatar;
+        TextView tvName, tvParty, tvPosition, tvYear;
 
-        public CandidateViewHolder(@NonNull View itemView) {
+        VH(@NonNull View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(R.id.tvName);
-            tvParty = itemView.findViewById(R.id.tvParty);
-            tvPosition = itemView.findViewById(R.id.tvPosition);
+            ivAvatar = itemView.findViewById(R.id.ivCandidateAvatar);
+            tvName = itemView.findViewById(R.id.tvCandidateName);
+            tvParty = itemView.findViewById(R.id.tvCandidateParty);
+            tvPosition = itemView.findViewById(R.id.tvCandidatePosition);
+            tvYear = itemView.findViewById(R.id.tvCandidateYear);
         }
     }
 }
