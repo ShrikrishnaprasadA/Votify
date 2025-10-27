@@ -3,6 +3,7 @@ package com.example.collegeelectionsystem;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,14 +14,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class StudentRegisterStep2Activity extends AppCompatActivity {
 
     private EditText etFirstName, etLastName, etEmail, etPhone, etDepartment, etYear, etPassword, etConfirmPassword;
     private FirebaseAuth mAuth;
-
     private FirebaseFirestore db;
     private String studentId; // passed from Step 1
+
+    // Regex pattern for strong password: 8+ chars, at least one uppercase, one special char
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +49,13 @@ public class StudentRegisterStep2Activity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         Button btnCompleteRegistration = findViewById(R.id.btnCompleteRegistration);
+
         btnCompleteRegistration.setOnClickListener(v -> registerUser());
-        TextView tvbacktologin=findViewById(R.id.tvBackToLoginStep2);
-        tvbacktologin.setOnClickListener(v->{
-            startActivity(new Intent(StudentRegisterStep2Activity.this,StudentLoginActivity.class));
-        });
+
+        TextView tvBackToLogin = findViewById(R.id.tvBackToLoginStep2);
+        tvBackToLogin.setOnClickListener(v ->
+                startActivity(new Intent(StudentRegisterStep2Activity.this, StudentLoginActivity.class))
+        );
     }
 
     private void registerUser() {
@@ -61,8 +68,10 @@ public class StudentRegisterStep2Activity extends AppCompatActivity {
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
 
-        // Validation
-        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || department.isEmpty() || year.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+        // --- Validation Section ---
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
+                department.isEmpty() || year.isEmpty() || password.isEmpty() ||
+                confirmPassword.isEmpty() || phone.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -72,10 +81,23 @@ public class StudentRegisterStep2Activity extends AppCompatActivity {
             return;
         }
 
+        // Validate phone number (10 digits)
+        if (!phone.matches("^[0-9]{10}$")) {
+            Toast.makeText(this, "Enter a valid 10-digit phone number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate password strength
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            Toast.makeText(this, "Password must be 8+ chars, include 1 uppercase and 1 special character", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
+        // --- End of Validation ---
 
         // ✅ Create FirebaseAuth User
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
@@ -101,10 +123,8 @@ public class StudentRegisterStep2Activity extends AppCompatActivity {
                             startActivity(new Intent(StudentRegisterStep2Activity.this, DashboardActivity.class));
                             finish();
                         })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        });
-
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
             } else {
                 Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }

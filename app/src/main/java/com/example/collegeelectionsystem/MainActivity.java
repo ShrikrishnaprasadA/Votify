@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser current = mAuth.getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         if (current != null) {
             // Signed-in user -> determine role from Firestore users collection
             String uid = current.getUid();
@@ -62,6 +63,14 @@ public class MainActivity extends AppCompatActivity {
                         // fall back to student dashboard to avoid blocking app
                         goToStudentDashboard();
                     });
+
+        } else {
+            // Not authenticated — check for anonymous token saved in prefs
+            SharedPreferences prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            String anonTokenDocId = prefs.getString(KEY_ANON_TOKEN_DOC_ID, null);
+
+                // No session — launch student login (or onboarding)
+                goToLogin();
 
         }
     }
