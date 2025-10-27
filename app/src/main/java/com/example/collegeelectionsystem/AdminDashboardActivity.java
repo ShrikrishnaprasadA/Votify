@@ -5,9 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
-
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
+import android.content.Intent;
+import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 
@@ -26,9 +31,25 @@ public class AdminDashboardActivity extends AppCompatActivity {
         Button btnManageResults = findViewById(R.id.btnManageResults);
         Button btnGenerateTokens = findViewById(R.id.btnGenerateTokens);
         Button btnToggleResults = findViewById(R.id.btnToggleResults);
-
+        ImageButton logout=findViewById(R.id.logoutBtn);
         db = FirebaseFirestore.getInstance();
+        logout.setOnClickListener(v -> {
+            // Sign out from Firebase Authentication
+            FirebaseAuth.getInstance().signOut();
 
+            // Unsubscribe from topics so admin doesn’t keep getting notifications
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("announcements");
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("results");
+
+            // Show confirmation (optional)
+            Toast.makeText(this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
+
+            // Redirect to login screen
+            Intent i = new Intent(AdminDashboardActivity.this, AdminLoginActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
+            finish();
+        });
         // Navigation
         btnAddCandidate.setOnClickListener(v -> startActivity(new Intent(this, AddCandidateActivity.class)));
         btnAddParty.setOnClickListener(v -> startActivity(new Intent(this, AddPartyActivity.class)));

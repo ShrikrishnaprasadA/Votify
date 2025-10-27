@@ -17,9 +17,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CollegeElectionSystem">
         <activity
-            android:name=".AnnouncementDetailActivity"
+            android:name=".AnonymousResultsActivity"
             android:exported="false" />
-        <!-- Activities -->
+        <activity
+            android:name=".AnonymousVotingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AnnouncementDetailActivity"
+            android:exported="false" /> <!-- Activities -->
         <activity
             android:name=".ResultsHistoryActivity"
             android:exported="false" />

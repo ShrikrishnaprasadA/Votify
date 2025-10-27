@@ -41,6 +41,8 @@ public class StudentLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_student_login);
 
         mAuth = FirebaseAuth.getInstance();
+        TextView tvForgot = findViewById(R.id.tvForgotPassword);
+        tvForgot.setOnClickListener(v -> showPasswordResetDialog(etEmail));
 
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
@@ -70,6 +72,49 @@ public class StudentLoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> loginUser());
     }
+
+    private void showPasswordResetDialog(EditText prefillEmailField) {
+        // create an EditText for input
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint("Enter your email");
+        input.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        // prefill from existing email field if available
+        String current = prefillEmailField.getText().toString().trim();
+        if (!current.isEmpty()) input.setText(current);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Reset password")
+                .setMessage("Enter your email to receive a password reset link.")
+                .setView(input)
+                .setPositiveButton("Send", (dialog, which) -> {
+                    String email = input.getText().toString().trim();
+                    sendPasswordReset(email);
+                })
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private void sendPasswordReset(String email) {
+        if (email.isEmpty()) {
+            android.widget.Toast.makeText(this, "Please enter your email", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!email.endsWith("@learner.manipal.edu")) {
+            android.widget.Toast.makeText(this, "Email must end with @learner.manipal.edu", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        android.widget.Toast.makeText(this, "Reset link sent to " + email, android.widget.Toast.LENGTH_LONG).show();
+                    } else {
+                        String err = task.getException() != null ? task.getException().getMessage() : "Failed to send reset email";
+                        android.widget.Toast.makeText(this, "Error: " + err, android.widget.Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
 
     private void loginUser() {
         final String email = etEmail.getText().toString().trim();

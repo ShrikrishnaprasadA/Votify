@@ -54,7 +54,9 @@ dependencies {
 
     // MPAndroidChart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
+// In build.gradle (Module :app)
+    implementation(libs.material.v1120)
+// Use the latest version
     // Lifecycle & Navigation
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
@@ -68,6 +70,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 //    kapt("com.github.bumptech.glide:compiler:4.16.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation(libs.gridlayout)
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

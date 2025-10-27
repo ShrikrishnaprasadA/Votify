@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,18 +33,30 @@
             android:inputType="textEmailAddress"
             android:layout_marginBottom="12dp"/>
 
-        <EditText
-            android:id="@+id/etCandidateParty"
+        <!-- Party Spinner (loaded from Firestore) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Party"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"/>
+        <Spinner
+            android:id="@+id/spCandidateParty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Party"
             android:layout_marginBottom="12dp"/>
 
-        <EditText
-            android:id="@+id/etCandidatePosition"
+        <!-- Position Spinner (fixed list) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Position"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"/>
+        <Spinner
+            android:id="@+id/spCandidatePosition"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Position (e.g. President)"
             android:layout_marginBottom="12dp"/>
 
         <EditText

@@ -1,7 +1,6 @@
 package com.example.collegeelectionsystem;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,123 +9,117 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-public class ResultsAdapter extends RecyclerView.Adapter<ResultsAdapter.VH> {
+/**
+ * Adapter for showing election results grouped by position.
+ * Each position shows candidate cards with name, party, and votes.
+ * Winner is shown under the candidate list.
+ */
+public class ResultsAdapter extends RecyclerView.Adapter<ResultsAdapter.PositionViewHolder> {
 
-    private final Context ctx;
-    private final List<PositionResults> items;
+    private final Context context;
+    private final List<PositionResults> data;
 
-    public static class PositionResults {
-        public String position;
-        public List<CandidateResult> candidateResults;
-        public PositionResults(String position, List<CandidateResult> candidateResults) {
-            this.position = position;
-            this.candidateResults = candidateResults;
-        }
-    }
-
-    public ResultsAdapter(Context ctx, List<PositionResults> items) {
-        this.ctx = ctx;
-        this.items = items;
+    public ResultsAdapter(Context context, List<PositionResults> data) {
+        this.context = context;
+        this.data = data;
     }
 
     @NonNull
     @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(ctx).inflate(R.layout.item_result, parent, false);
-        return new VH(v);
+    public PositionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_position_result, parent, false);
+        return new PositionViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH holder, int position) {
-        PositionResults pr = items.get(position);
-        holder.tvPosition.setText(pr.position);
+    public void onBindViewHolder(@NonNull PositionViewHolder holder, int position) {
+        PositionResults pr = data.get(position);
+        holder.tvPositionTitle.setText(pr.position);
 
-        // Build pie entries
-        List<PieEntry> entries = new ArrayList<>();
-        int totalVotes = 0;
-        for (CandidateResult cr : pr.candidateResults) {
-            entries.add(new PieEntry(cr.votes, cr.name + " (" + cr.party + ")"));
-            totalVotes += cr.votes;
+        // Clear previous candidate views before reusing the holder
+        holder.container.removeAllViews();
+
+        for (CandidateResult cr : pr.candidates) {
+            View card = LayoutInflater.from(context).inflate(R.layout.item_candidate_result, holder.container, false);
+
+            TextView tvName = card.findViewById(R.id.tvCandidateName);
+            TextView tvParty = card.findViewById(R.id.tvCandidateParty);
+            TextView tvVotes = card.findViewById(R.id.tvCandidateVotes);
+
+            tvName.setText(cr.name);
+            tvParty.setText(cr.party != null ? cr.party : "Independent");
+            tvVotes.setText(String.valueOf(cr.votes));
+
+            // Highlight top candidate (winner)
+            if (!pr.candidates.isEmpty() && pr.candidates.get(0) == cr) {
+                card.setBackgroundResource(R.drawable.winner_highlight_bg);
+            } else {
+                // reset background for non-winners (in case view is recycled)
+                card.setBackgroundResource(android.R.color.transparent);
+            }
+
+            holder.container.addView(card);
         }
 
-        if (entries.isEmpty()) {
-            holder.pieChart.clear();
-            holder.tvWinner.setText("No votes yet");
-            holder.llCandidateList.removeAllViews();
-            return;
-        }
-
-        PieDataSet dataSet = new PieDataSet(entries, "");
-        dataSet.setValueTextSize(12f);
-
-        // Simple color palette (expand if needed)
-        int[] colors = new int[]{
-                Color.parseColor("#2196F3"),
-                Color.parseColor("#F44336"),
-                Color.parseColor("#4CAF50"),
-                Color.parseColor("#FFC107"),
-                Color.parseColor("#9C27B0"),
-                Color.parseColor("#00BCD4")
-        };
-        List<Integer> colorList = new ArrayList<>();
-        for (int i = 0; i < entries.size(); i++) {
-            colorList.add(colors[i % colors.length]);
-        }
-        dataSet.setColors(colorList);
-
-        PieData pieData = new PieData(dataSet);
-        holder.pieChart.setData(pieData);
-        holder.pieChart.getDescription().setEnabled(false);
-        holder.pieChart.getLegend().setEnabled(false);
-        holder.pieChart.setCenterText(totalVotes + " votes");
-        holder.pieChart.invalidate();
-
-        // Determine winner
-        CandidateResult winner = pr.candidateResults.get(0);
-        for (CandidateResult cr : pr.candidateResults) {
-            if (cr.votes > winner.votes) winner = cr;
-        }
-        holder.tvWinner.setText(String.format(Locale.getDefault(), "Winner: %s (%s) — %d votes",
-                winner.name, winner.party, winner.votes));
-
-        // Fill candidate list (simple textual rows)
-        holder.llCandidateList.removeAllViews();
-        for (CandidateResult cr : pr.candidateResults) {
-            TextView row = new TextView(ctx);
-            row.setText(String.format(Locale.getDefault(), "%s — %s — %d votes",
-                    cr.name, cr.party == null ? "Independent" : cr.party, cr.votes));
-            row.setTextSize(14f);
-            row.setTextColor(Color.DKGRAY);
-            row.setPadding(6, 6, 6, 6);
-            holder.llCandidateList.addView(row);
+        // --- set winner summary under the candidate list ---
+        if (pr.candidates != null && !pr.candidates.isEmpty()) {
+            CandidateResult winner = pr.candidates.get(0);
+            String partyText = (winner.party != null && !winner.party.isEmpty()) ? (" — " + winner.party) : "";
+            String votesText = " (" + winner.votes + " votes)";
+            holder.tvWinner.setText("Winner: " + winner.name + partyText + votesText);
+            holder.tvWinner.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvWinner.setVisibility(View.GONE);
         }
     }
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return data.size();
     }
 
-    static class VH extends RecyclerView.ViewHolder {
-        TextView tvPosition, tvWinner;
-        PieChart pieChart;
-        LinearLayout llCandidateList;
+    // ---------- INNER CLASSES ----------
 
-        VH(@NonNull View itemView) {
+    /** Represents one position with a list of candidate results */
+    public static class PositionResults {
+        public String position;
+        public List<CandidateResult> candidates;
+
+        public PositionResults(String position, List<CandidateResult> candidates) {
+            this.position = position;
+            this.candidates = candidates;
+        }
+    }
+
+    /** Represents a candidate's result details */
+    public static class CandidateResult {
+        public String id;
+        public String name;
+        public String party;
+        public int votes;
+
+        public CandidateResult(String id, String name, String party, int votes) {
+            this.id = id;
+            this.name = name;
+            this.party = party;
+            this.votes = votes;
+        }
+    }
+
+    // ---------- VIEW HOLDER ----------
+    static class PositionViewHolder extends RecyclerView.ViewHolder {
+        TextView tvPositionTitle;
+        LinearLayout container;
+        TextView tvWinner;
+
+        public PositionViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvPosition = itemView.findViewById(R.id.tvPosition);
-            pieChart = itemView.findViewById(R.id.pieChart);
+            tvPositionTitle = itemView.findViewById(R.id.tvPositionTitle);
+            container = itemView.findViewById(R.id.layoutCandidatesContainer);
             tvWinner = itemView.findViewById(R.id.tvWinner);
-            llCandidateList = itemView.findViewById(R.id.llCandidateList);
         }
     }
 }

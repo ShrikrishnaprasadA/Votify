@@ -138,6 +138,17 @@
             android:textSize="16sp"
             android:backgroundTint="#2196F3"
             android:textColor="@android:color/white"/>
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            android:textColor="#2196F3"
+            android:paddingTop="12dp"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:focusable="true" />
+
 
         <TextView
             android:id="@+id/btnBack"

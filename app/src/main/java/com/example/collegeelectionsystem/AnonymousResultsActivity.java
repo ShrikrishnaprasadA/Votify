@@ -24,7 +24,7 @@ import java.util.Map;
  * Loads votes and candidate info and displays per-position results.
  * Also respects settings/election.resultsPublished flag.
  */
-public class ResultsActivity extends AppCompatActivity {
+public class AnonymousResultsActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private RecyclerView recycler;
@@ -36,7 +36,7 @@ public class ResultsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_results);
+        setContentView(R.layout.activity_anonymous_results);
 
         db = FirebaseFirestore.getInstance();
 
@@ -64,27 +64,12 @@ public class ResultsActivity extends AppCompatActivity {
             bottomNav.setOnItemSelectedListener(item -> {
                 int id = item.getItemId();
                 Intent intent;
-                if (id == R.id.nav_home) {
-                    intent = new Intent(ResultsActivity.this, DashboardActivity.class);
+                if (id == R.id.nav_vote) {
+                    intent = new Intent(AnonymousResultsActivity.this, AnonymousVotingActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
                     return true;
-                } else if (id == R.id.nav_candidates) {
-                    intent = new Intent(ResultsActivity.this, CandidatesActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(intent);
-                    return true;
-                } else if (id == R.id.nav_vote) {
-                    intent = new Intent(ResultsActivity.this, VotingActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(intent);
-                    return true;
-                } else if (id == R.id.nav_news) {
-                    intent = new Intent(ResultsActivity.this, AnnouncementsActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(intent);
-                    return true;
-                } else if (id == R.id.nav_results) {
+                }else if (id == R.id.nav_results) {
                     // already here
                     return true;
                 }
@@ -120,7 +105,7 @@ public class ResultsActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     // If check fails, still attempt to load (or you may choose to block)
                     progress.setVisibility(android.view.View.GONE);
-                    Toast.makeText(ResultsActivity.this, "Failed to check results status: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(AnonymousResultsActivity.this, "Failed to check results status: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 

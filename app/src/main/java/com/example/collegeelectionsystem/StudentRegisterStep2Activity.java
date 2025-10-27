@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,6 +18,7 @@ public class StudentRegisterStep2Activity extends AppCompatActivity {
 
     private EditText etFirstName, etLastName, etEmail, etPhone, etDepartment, etYear, etPassword, etConfirmPassword;
     private FirebaseAuth mAuth;
+
     private FirebaseFirestore db;
     private String studentId; // passed from Step 1
 
@@ -42,8 +44,11 @@ public class StudentRegisterStep2Activity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         Button btnCompleteRegistration = findViewById(R.id.btnCompleteRegistration);
-
         btnCompleteRegistration.setOnClickListener(v -> registerUser());
+        TextView tvbacktologin=findViewById(R.id.tvBackToLoginStep2);
+        tvbacktologin.setOnClickListener(v->{
+            startActivity(new Intent(StudentRegisterStep2Activity.this,StudentLoginActivity.class));
+        });
     }
 
     private void registerUser() {
