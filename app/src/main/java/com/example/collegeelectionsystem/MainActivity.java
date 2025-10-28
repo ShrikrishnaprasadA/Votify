@@ -20,7 +20,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * Redirects users according to role:
  * - admin -> AdminDashboardActivity
  * - student/auth -> DashboardActivity
- * - anonymous token present -> AnonymousDashboardActivity
  * - otherwise -> StudentLoginActivity
  */
 public class MainActivity extends AppCompatActivity {

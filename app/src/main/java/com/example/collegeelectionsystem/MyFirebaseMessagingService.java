@@ -98,7 +98,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.ic_votify_notification) // create or change this drawable
+                        .setSmallIcon(R.drawable.ic_votify_logo) // create or change this drawable
                         .setContentTitle(title)
                         .setContentText(messageBody)
                         .setAutoCancel(true)

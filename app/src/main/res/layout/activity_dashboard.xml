@@ -216,10 +216,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Election Results" android:textSize="16sp" android:textStyle="bold" android:textColor="#333333"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View live vote counts and analysis" android:textSize="12sp" android:textColor="#757575"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Parties" android:textSize="16sp" android:textStyle="bold" android:textColor="#333333"/>
                         </LinearLayout>
-                        <Button android:layout_width="wrap_content" android:layout_height="40dp" android:text="Live Results" android:textSize="12sp" android:textColor="@android:color/white" android:backgroundTint="#4CAF50"/>
+                        <Button android:layout_width="wrap_content" android:layout_height="40dp" android:text="Parties" android:textSize="12sp" android:textColor="@android:color/white" android:backgroundTint="#4CAF50"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
