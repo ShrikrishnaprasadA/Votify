@@ -59,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:columnCount="2"
-                app:rowCount="2">
+                app:rowCount="3">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAddCandidate"
@@ -119,7 +119,7 @@
                     android:layout_height="wrap_content"
                     app:layout_columnWeight="1"
                     android:layout_margin="8dp"
-                    android:text="Manage Results"
+                    android:text="View Results"
                     android:textColor="@android:color/black"
                     app:icon="@android:drawable/ic_menu_sort_by_size"
                     app:iconTint="@color/blue_500"
@@ -129,6 +129,38 @@
                     app:backgroundTint="@android:color/white"
                     app:cornerRadius="8dp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageCandidate"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Manage Candidate"
+                    android:textColor="@android:color/black"
+                    app:icon="@android:drawable/ic_menu_sort_by_size"
+                    app:iconTint="@color/blue_500"
+                    app:iconGravity="textTop"
+                    android:paddingTop="24dp"
+                    android:paddingBottom="16dp"
+                    app:backgroundTint="@android:color/white"
+                    app:cornerRadius="8dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGenerateTokens"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Generate Anonymous Tokens"
+                    android:textColor="@android:color/black"
+                    app:icon="@android:drawable/ic_lock_lock"
+                    app:iconTint="@color/blue_500"
+                    app:iconGravity="textTop"
+                    android:paddingTop="24dp"
+                    android:paddingBottom="16dp"
+                    app:backgroundTint="@android:color/white"
+                    app:cornerRadius="8dp" />
             </androidx.gridlayout.widget.GridLayout>
 
 
@@ -151,14 +183,7 @@
                 app:icon="@android:drawable/ic_menu_send"
                 android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnGenerateTokens"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Generate Anonymous Tokens"
-                app:icon="@android:drawable/ic_lock_lock"
-                android:padding="12dp"/>
+
 
         </LinearLayout>
     </LinearLayout>

@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CollegeElectionSystem">
         <activity
+            android:name=".AdminCandidatesActivity"
+            android:exported="false" />
+        <activity
             android:name=".AnonymousResultsActivity"
             android:exported="false" />
         <activity
